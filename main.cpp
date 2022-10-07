@@ -11,6 +11,7 @@ void process(const std::filesystem::path &dir) {
     return;
 }
 
+/*
 uint64_t m_size(const std::filesystem::path &dir) {
     std::filesystem::path p {dir};
     uintmax_t max_val = 0;
@@ -27,6 +28,22 @@ uint64_t m_size(const std::filesystem::path &dir) {
             //fprintf(stderr, "Skipped: %s\n", dir_entry.path().c_str());
         }
     }
+    return max_val;
+}
+*/
+
+uint64_t m_free(const std::filesystem::path &dir) {
+    std::filesystem::path p {dir};
+    std::filesystem::space_info si = std::filesystem::space(dir);
+    uintmax_t max_val = 0;
+
+    try {
+        si = std::filesystem::space(dir);
+        max_val = si.free;
+    } catch (std::filesystem::filesystem_error& e) {
+        fprintf(stderr, "Skipped: %s\n", p.string().c_str());
+    }
+
     return max_val;
 }
 
@@ -65,9 +82,9 @@ int main(int argc, char* argv[]) {
         break;
     case 2:
         if (!strcmp(argv[1], "-m") || !strcmp(argv[1], "--measure")) {
-            uint64_t measure = m_size("/");
+            uint64_t free = m_free("/");
             uint64_t capacity = m_capacity("/");
-            std::cout << "Size: " << readable_size(measure) << "B / " <<
+            std::cout << "Size: " << readable_size(free) << "B / " <<
                 readable_size(capacity) << "B\n";
             return 0;
         }
